@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.?>
+<?import javafx.scene.layout.?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="client.ChatController"
+      spacing="10" padding="10">
+
+    <ListView fx:id="chatView" VBox.vgrow="ALWAYS" />
+
+    <HBox spacing="5">
+        <TextField fx:id="messageInput" HBox.hgrow="ALWAYS" promptText="Unesite poruku..." />
+
+        <TextField fx:id="recipientInput" promptText="Primalac (opciono)" prefWidth="150"/>
+    </HBox>
+
+    <HBox spacing="10">
+        <Button text="Pošalji Poruku" onAction="#sendMessage" HBox.hgrow="ALWAYS"/>
+        <Button text="Odaberi Fajl" onAction="#selectFile" HBox.hgrow="ALWAYS"/>
+        <Label fx:id="fileNameLabel" text="Nema odabranog fajla" HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+</VBox>
