@@ -27,7 +27,7 @@ public class Client extends Application {
         
         // --- 2. Korak: Pokretanje UI-ja ---
         // Učitavanje FXML-a iz resources/fxml/ChatView.fxml
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ChatView.fxml"));
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ui.fxml"));
         Parent root = loader.load();
 
         primaryStage.setTitle("JavaFX Chat Klijent - " + username);

@@ -1,0 +1,37 @@
+# Compiled class files
+*.class
+
+# Build directories
+build/
+target/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.eclipse/
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Database files (optional - mozete ih drzati ako zelite)
+# *.db
+# *.sqlite
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# JAR files (osim onih u lib folderu)
+*.jar
+!lib/*.jar
+
+# JavaFX SDK (prevelik za GitHub)
+lib/javafx-sdk-*/
