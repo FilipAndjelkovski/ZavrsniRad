@@ -4,11 +4,10 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class Message implements Serializable {
-    // Važno: Koristimo ID za serijalizaciju
     private static final long serialVersionUID = 1L; 
     
     private String sender;
-    private String recipient; // null ako je broadcast ili sistemska poruka
+    private String recipient;
     private String content;
     private LocalDateTime timestamp;
 
@@ -19,7 +18,6 @@ public class Message implements Serializable {
         this.timestamp = LocalDateTime.now();
     }
     
-    // ----------- Getteri i Setteri su neophodni -----------
     
     public String getSender() {
         return sender;
@@ -37,5 +35,4 @@ public class Message implements Serializable {
         return timestamp;
     }
     
-    // Nema potrebe za setteri-ma jer je poruka immutable (nepromenljiva)
 }

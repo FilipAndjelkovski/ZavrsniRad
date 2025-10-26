@@ -9,7 +9,7 @@ public class FileTransfer implements Serializable {
     private String recipient;
     private String fileName;
     private long fileSize;
-    private byte[] fileData; // Sadržaj fajla kao niz bajtova
+    private byte[] fileData;
 
     public FileTransfer(String sender, String recipient, String fileName, byte[] fileData) {
         this.sender = sender;
@@ -19,7 +19,6 @@ public class FileTransfer implements Serializable {
         this.fileSize = fileData.length;
     }
 
-    // ----------- Getteri su neophodni -----------
     
     public String getSender() {
         return sender;
@@ -41,5 +40,4 @@ public class FileTransfer implements Serializable {
         return fileData;
     }
     
-    // Nema potrebe za setteri-ma
 }

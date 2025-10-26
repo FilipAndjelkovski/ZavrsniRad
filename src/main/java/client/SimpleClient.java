@@ -16,7 +16,6 @@ public class SimpleClient extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        // Kreiranje jednostavnog UI-a bez FXML-a
         VBox root = new VBox(10);
         
         Label titleLabel = new Label("Chat Aplikacija - Test");

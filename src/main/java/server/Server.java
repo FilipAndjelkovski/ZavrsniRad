@@ -63,12 +63,15 @@ public class Server {
     }
     
     public static void removeClient(ServerThread client) {
-        clients.remove(client);
-        System.out.println("Klijent " + client.getUsername() + " se diskonektovao.");
-        
-        // Obavesti ostale korisnike
-        Message systemMessage = new Message("SERVER", null, client.getUsername() + " je napustio chat.");
-        broadcastMessage(systemMessage, null);
+        if (clients.remove(client)) {
+            System.out.println("Klijent " + client.getUsername() + " se diskonektovao.");
+            
+            // Obavesti ostale korisnike samo ako je bio prijavljen
+            if (client.loggedIn) {
+                Message systemMessage = new Message("SERVER", null, client.getUsername() + " je napustio chat.");
+                broadcastMessage(systemMessage, null);
+            }
+        }
     }
     
     public static ServerThread findClient(String username) {

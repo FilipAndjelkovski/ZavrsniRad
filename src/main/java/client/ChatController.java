@@ -21,16 +21,19 @@ public class ChatController {
     private String clientUsername;
     private File selectedFile;
 
-    // Metoda za inicijalizaciju mrežnog dela, poziva se iz Client.java
     public void initializeNetwork(String serverHost, int serverPort, String username) {
         this.clientUsername = username;
         
         try {
-            // Kreiranje Handler-a (Niti za mrežnu komunikaciju)
             handler = new ClientHandler(serverHost, serverPort, this);
-            new Thread(handler).start(); // Pokreće mrežnu komunikaciju u novoj niti
             
             chatView.getItems().add("Povezan kao: " + clientUsername);
+            
+            // Send login message
+            handler.sendObject(new Message(clientUsername, null, "LOGIN"));
+            
+            // Start handler thread
+            new Thread(handler).start();
             
         } catch (IOException e) {
             System.err.println("Greška pri povezivanju na server: " + e.getMessage());
@@ -38,35 +41,32 @@ public class ChatController {
         }
     }
 
-    // Dodavanje poruke u chat prozor (poziva ga ClientHandler)
     public void displayMessage(String message) {
-        // Platform.runLater je neophodan jer se ovo poziva iz ClientHandler niti, a UI mora da se menja u JavaFX Aplikacionoj niti
         Platform.runLater(() -> chatView.getItems().add(message));
     }
 
-    // Akcija na klik 'Pošalji Poruku'
     @FXML
     private void sendMessage() {
         String text = messageInput.getText().trim();
         String recipient = recipientInput.getText().trim();
 
-        if (text.isEmpty()) {
+        if (text.isEmpty() && selectedFile == null) {
             return;
         }
 
         try {
+            // Send file if selected
             if (selectedFile != null) {
-                // Logika za slanje fajla (ako je fajl odabran)
                 sendFile(recipient);
-                // Nastavljamo sa slanjem tekstualne poruke kao prateće poruke
             }
             
-            // Slanje tekstualne poruke
-            Message msg = new Message(clientUsername, recipient.isEmpty() ? null : recipient, text);
-            handler.sendObject(msg); // Delegiramo slanje handleru
-
-            // Ažuriranje UI-ja
-            displayMessage("Ja (" + (recipient.isEmpty() ? "SVI" : recipient) + "): " + text);
+            // Send text message if provided
+            if (!text.isEmpty()) {
+                Message msg = new Message(clientUsername, recipient.isEmpty() ? null : recipient, text);
+                handler.sendObject(msg);
+                displayMessage("Ja (" + (recipient.isEmpty() ? "SVI" : recipient) + "): " + text);
+            }
+            
             messageInput.clear();
             
         } catch (IOException e) {
@@ -75,7 +75,6 @@ public class ChatController {
         }
     }
 
-    // Akcija na klik 'Odaberi Fajl'
     @FXML
     private void selectFile() {
         FileChooser fileChooser = new FileChooser();
@@ -87,14 +86,11 @@ public class ChatController {
         }
     }
 
-    // Pomoćna metoda za slanje fajla
     private void sendFile(String recipient) throws IOException {
         if (selectedFile == null || !selectedFile.exists()) return;
 
-        // 1. Čitanje fajla u niz bajtova (Ovo je jednostavno za male fajlove, za velike fajlove treba koristiti tokove!)
         byte[] fileBytes = Files.readAllBytes(selectedFile.toPath());
 
-        // 2. Kreiranje objekta za prenos
         FileTransfer fileTransfer = new FileTransfer(
                 clientUsername,
                 recipient.isEmpty() ? null : recipient,
@@ -102,11 +98,12 @@ public class ChatController {
                 fileBytes
         );
 
-        // 3. Slanje objekta
         handler.sendObject(fileTransfer);
-        displayMessage("--- FAJL POSLAT: " + selectedFile.getName() + " (" + fileBytes.length + " bajtova) ---");
         
-        // Resetovanje fajla
+        String recipientInfo = recipient.isEmpty() ? "svim korisnicima" : "korisniku " + recipient;
+        displayMessage(String.format("📎 FAJL POSLAT %s; %s (%d bajtova)", 
+                                   recipientInfo, selectedFile.getName(), fileBytes.length));
+        
         selectedFile = null;
         fileNameLabel.setText("Nema odabranog fajla");
     }

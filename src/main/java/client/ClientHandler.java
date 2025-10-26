@@ -17,13 +17,11 @@ public class ClientHandler implements Runnable {
 
     public ClientHandler(String host, int port, ChatController controller) throws IOException {
         this.socket = new Socket(host, port);
-        // Prvo Output Stream, pa Input Stream - ovo je ključno za Socket komunikaciju!
         this.outputStream = new ObjectOutputStream(socket.getOutputStream());
         this.inputStream = new ObjectInputStream(socket.getInputStream());
         this.controller = controller;
     }
 
-    // Metoda za slanje bilo kog serijalizovanog objekta
     public void sendObject(Serializable object) throws IOException {
         outputStream.writeObject(object);
         outputStream.flush();
@@ -32,7 +30,6 @@ public class ClientHandler implements Runnable {
     @Override
     public void run() {
         try {
-            // Kontinuirano slušanje servera
             while (socket.isConnected()) {
                 Object receivedObject = inputStream.readObject();
 
@@ -43,32 +40,34 @@ public class ClientHandler implements Runnable {
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
-            // Došlo je do greške (server isključen, prekinuta konekcija, itd.)
             controller.displayMessage("Konekcija sa serverom prekinuta.");
         } finally {
             try {
                 if (socket != null) socket.close();
-            } catch (IOException e) { /* ignorisati */ }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private void handleMessage(Message msg) {
-        // Prikazivanje poruke koju je poslao server (ili je server prosledio od drugog klijenta)
         String display = String.format("[%s]: %s", msg.getSender(), msg.getContent());
         controller.displayMessage(display);
     }
 
     private void handleFileTransfer(FileTransfer ft) throws IOException {
-        // Logika za primanje fajla:
-        // 1. Kreiranje lokalnog fajla
-        String newFileName = "primljeno_" + ft.getFileName();
+        String timestamp = java.time.LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+        String newFileName = "primljeno_" + timestamp + "_" + ft.getFileName();
         
-        // 2. Upisivanje bajtova u fajl
         Files.write(Paths.get(newFileName), ft.getFileData());
 
+        String senderInfo = ft.getSender().equals("SERVER") ? "servera" : "korisnika " + ft.getSender();
         controller.displayMessage(
-            String.format("--- FAJL PRIMLJEN od %s: %s (%d bajtova) - Sačuvan kao: %s ---", 
-                           ft.getSender(), ft.getFileName(), ft.getFileSize(), newFileName)
+            String.format("📎 FAJL PRIMLJEN od %s: %s (%d bajtova)", 
+                         senderInfo, ft.getFileName(), ft.getFileSize())
+        );
+        controller.displayMessage(
+            String.format("Fajl je sačuvan kao: %s", newFileName)
         );
     }
 }
