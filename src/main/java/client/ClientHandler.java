@@ -62,9 +62,17 @@ public class ClientHandler implements Runnable {
         Files.write(Paths.get(newFileName), ft.getFileData());
 
         String senderInfo = ft.getSender().equals("SERVER") ? "servera" : "korisnika " + ft.getSender();
+        
+        // Kreiraj link za preuzimanje sa servera
+        String serverFileName = ft.getSender() + "_" + ft.getFileName();
+        String downloadLink = "http://localhost:8080/files/" + serverFileName;
+        
         controller.displayMessage(
             String.format("📎 FAJL PRIMLJEN od %s: %s (%d bajtova)", 
                          senderInfo, ft.getFileName(), ft.getFileSize())
+        );
+        controller.displayMessage(
+            String.format("🔗 Preuzmi: %s", downloadLink)
         );
         controller.displayMessage(
             String.format("Fajl je sačuvan kao: %s", newFileName)

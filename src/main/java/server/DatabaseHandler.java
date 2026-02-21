@@ -7,8 +7,10 @@ import java.sql.*;
 
 public class DatabaseHandler {
 
+    // Lokacija SQLite baze podataka - fajl će biti kreiran u root direktorijumu
     private static final String DB_URL = "jdbc:sqlite:chat_history.db";
     
+    // Nazivi tabela
     private static final String TABLE_MESSAGES = "messages";
     private static final String TABLE_FILES = "file_records";
 
@@ -16,9 +18,14 @@ public class DatabaseHandler {
         initializeDatabase();
     }
 
+    /**
+     * Uspostavlja konekciju sa bazom podataka.
+     * @return Connection objekat
+     */
     private Connection connect() {
         Connection conn = null;
         try {
+            // Učitavanje drajvera (za novije Jave obično nije neophodno, ali je dobra praksa)
             Class.forName("org.sqlite.JDBC"); 
             conn = DriverManager.getConnection(DB_URL);
         } catch (SQLException e) {
@@ -29,6 +36,9 @@ public class DatabaseHandler {
         return conn;
     }
 
+    /**
+     * Inicijalizuje bazu i kreira tabele ako ne postoje.
+     */
     private void initializeDatabase() {
         String createMessagesTable = "CREATE TABLE IF NOT EXISTS " + TABLE_MESSAGES + " ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -45,6 +55,7 @@ public class DatabaseHandler {
                 + "filename TEXT NOT NULL,"
                 + "filesize INTEGER NOT NULL,"
                 + "timestamp DATETIME NOT NULL,"
+                // Nećemo čuvati ceo fajl u DB, već samo putanju ili meta-podatke
                 + "server_path TEXT"
                 + ");";
 
@@ -59,6 +70,10 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+     * Čuva tekstualnu poruku u bazu.
+     * @param message Objekat poruke.
+     */
     public void saveMessage(Message message) {
         String sql = "INSERT INTO " + TABLE_MESSAGES + "(sender, recipient, content, timestamp) VALUES(?, ?, ?, ?)";
 
@@ -68,6 +83,7 @@ public class DatabaseHandler {
             pstmt.setString(1, message.getSender());
             pstmt.setString(2, message.getRecipient());
             pstmt.setString(3, message.getContent());
+            // SQLite će automatski konvertovati LocalDateTime u odgovarajući string
             pstmt.setString(4, message.getTimestamp().toString()); 
             
             pstmt.executeUpdate();
@@ -77,6 +93,11 @@ public class DatabaseHandler {
         }
     }
 
+    /**
+     * Čuva meta-podatke o fajlu u bazu.
+     * @param ft Objekat FileTransfer.
+     * @param serverFilePath Putanja gde je fajl sačuvan na serveru.
+     */
     public void saveFileRecord(FileTransfer ft, String serverFilePath) {
         String sql = "INSERT INTO " + TABLE_FILES + "(sender, recipient, filename, filesize, timestamp, server_path) VALUES(?, ?, ?, ?, ?, ?)";
         
@@ -87,6 +108,7 @@ public class DatabaseHandler {
             pstmt.setString(2, ft.getRecipient());
             pstmt.setString(3, ft.getFileName());
             pstmt.setLong(4, ft.getFileSize());
+            // SQLite će automatski konvertovati LocalDateTime (ako bismo ga imali u FileTransfer, sada ćemo koristiti trenutno vreme)
             pstmt.setString(5, java.time.LocalDateTime.now().toString()); 
             pstmt.setString(6, serverFilePath);
             
@@ -97,4 +119,5 @@ public class DatabaseHandler {
         }
     }
     
+    // Opciono: Dodaj metode za dohvat istorije poruka, ako je potrebno za završni rad.
 }

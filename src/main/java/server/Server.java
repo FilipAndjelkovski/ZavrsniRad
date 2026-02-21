@@ -21,6 +21,11 @@ public class Server {
         System.out.println("--- Server se pokreće... ---");
         
         dbHandler = new DatabaseHandler(); // Inicijalizacija DB Handlera
+        
+        // Pokreni HTTP server za serviriranje fajlova
+        Thread fileServerThread = new Thread(new FileServer());
+        fileServerThread.setDaemon(true);
+        fileServerThread.start();
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Server sluša na portu: " + PORT);

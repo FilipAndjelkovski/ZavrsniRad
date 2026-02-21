@@ -38,25 +38,59 @@ Projekat se sastoji od tri glavna dela:
 
 ## Kako pokrenuti
 
-### 1. Pokretanje servera
-```bash
-# Kompajliranje
-javac -cp "lib/*" src/main/java/server/*.java src/main/java/common/*.java
+### macOS Instrukcije (Mac)
 
-# Pokretanje
-java -cp "lib/*:." server.Server
+**Sve je već kompajlirano i spremno za pokretanje!**
+
+#### 1. Pokretanje servera
+
+**Opcija A: Koristi skriptu (preporučeno)**
+```bash
+./run-server.sh
 ```
 
-### 2. Pokretanje klijenta
+**Opcija B: Ručno pokretanje**
+```bash
+cd /Users/filip/Desktop/zavrsniRad
+java -cp "lib/*:out" server.Server
+```
+
+**Napomena:** Ako dobiješ grešku "Address already in use", port 5000 je zauzet. Zaustavi proces:
+```bash
+lsof -ti:5000 | xargs kill
+```
+
+#### 2. Pokretanje klijenta
+
+**Opcija A: Koristi skriptu (preporučeno)**
+```bash
+./run-client.sh
+```
+
+**Opcija B: Ručno pokretanje**
+```bash
+cd /Users/filip/Desktop/zavrsniRad
+java --module-path lib/javafx-sdk-21.0.2/lib --add-modules javafx.controls,javafx.fxml -cp "lib/*:out" client.Client
+```
+
+### Windows Instrukcije
+
+#### 1. Pokretanje servera
 ```bash
 # Kompajliranje
-javac -cp "lib/*" src/main/java/client/*.java src/main/java/common/*.java
+javac -cp "lib/*" -d out src/main/java/server/*.java src/main/java/common/*.java
+
+# Pokretanje
+java -cp "lib/*;out" server.Server
+```
+
+#### 2. Pokretanje klijenta
+```bash
+# Kompajliranje
+javac -cp "lib/javafx-sdk-21.0.2/lib/*;lib/*" -d out src/main/java/client/*.java src/main/java/common/*.java
 
 # Pokretanje JavaFX klijenta
-java --module-path lib/javafx-sdk-21.0.2/lib --add-modules javafx.controls,javafx.fxml -cp "lib/*:." client.Client
-
-# Ili jednostavan tekstualni klijent
-java -cp "lib/*:." client.SimpleClient
+java --module-path lib/javafx-sdk-21.0.2/lib --add-modules javafx.controls,javafx.fxml -cp "lib/*;out" client.Client
 ```
 
 ## Struktura projekta

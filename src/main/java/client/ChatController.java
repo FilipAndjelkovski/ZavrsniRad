@@ -29,6 +29,21 @@ public class ChatController {
             
             chatView.getItems().add("Povezan kao: " + clientUsername);
             
+            // Dodaj double-click listener za otvaranje linkova
+            chatView.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    String selected = chatView.getSelectionModel().getSelectedItem();
+                    if (selected != null && selected.contains("http://")) {
+                        String url = selected.substring(selected.indexOf("http://"));
+                        try {
+                            java.awt.Desktop.getDesktop().browse(new java.net.URI(url));
+                        } catch (Exception e) {
+                            displayMessage("Greška pri otvaranju linka: " + e.getMessage());
+                        }
+                    }
+                }
+            });
+            
             // Send login message
             handler.sendObject(new Message(clientUsername, null, "LOGIN"));
             
